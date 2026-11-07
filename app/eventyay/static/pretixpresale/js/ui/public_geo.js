@@ -94,9 +94,33 @@ function initMap(grp) {
     { passive: false }
   );
 
-  grp.addEventListener("gesturestart", (e) => e.preventDefault());
-  grp.addEventListener("gesturechange", (e) => e.preventDefault());
-  grp.addEventListener("gestureend", (e) => e.preventDefault());
+  let initialGestureZoom = null;
+  grp.addEventListener("gesturestart", (e) => {
+    e.preventDefault();
+    initialGestureZoom = map.getZoom();
+  });
+  grp.addEventListener("gesturechange", (e) => {
+    e.preventDefault();
+    if (initialGestureZoom === null) {
+      initialGestureZoom = map.getZoom();
+    }
+    const zoomDiff = Math.round(Math.log2(e.scale));
+    const newZoom = Math.max(
+      map.getMinZoom(),
+      Math.min(map.getMaxZoom(), initialGestureZoom + zoomDiff)
+    );
+    if (newZoom !== map.getZoom()) {
+      const mousePos =
+        typeof e.clientX === "number"
+          ? map.mouseEventToContainerPoint(e)
+          : map.getSize().divideBy(2);
+      map.setZoomAround(mousePos, newZoom);
+    }
+  });
+  grp.addEventListener("gestureend", (e) => {
+    e.preventDefault();
+    initialGestureZoom = null;
+  });
 
   let isHovered = false;
   grp.addEventListener("mouseenter", () => {
@@ -110,6 +134,11 @@ function initMap(grp) {
   });
   window.addEventListener("blur", () => {
     isHovered = false;
+  });
+  window.addEventListener("focus", () => {
+    if (typeof grp.matches === "function") {
+      isHovered = grp.matches(":hover");
+    }
   });
 
   const isZoomInKey = (e) =>
@@ -127,7 +156,9 @@ function initMap(grp) {
     e.code === "NumpadSubtract";
 
   window.addEventListener("keydown", (e) => {
-    if (!isHovered) return;
+    const isUnderPointer =
+      typeof grp.matches === "function" ? grp.matches(":hover") : isHovered;
+    if (!isUnderPointer) return;
     if (e.ctrlKey || e.metaKey) {
       if (isZoomInKey(e)) {
         e.preventDefault();
