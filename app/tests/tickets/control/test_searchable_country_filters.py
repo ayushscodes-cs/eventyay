@@ -113,6 +113,7 @@ def test_order_search_country_filters_are_searchable(client, env):
     assert 'data-all-label="All countries"' in invoice_tag
     assert 'data-search-placeholder="Search"' in invoice_tag
     assert 'data-empty-text="No results"' in invoice_tag
+    assert 'All countries' in invoice_select
     assert 'Germany' in invoice_select
     assert 'United States' in invoice_select
 
@@ -123,6 +124,7 @@ def test_order_search_country_filters_are_searchable(client, env):
     assert 'data-all-label="All countries"' in attendee_tag
     assert 'data-search-placeholder="Search"' in attendee_tag
     assert 'data-empty-text="No results"' in attendee_tag
+    assert 'All countries' in attendee_select
     assert 'Germany' in attendee_select
     assert 'United States' in attendee_select
 
@@ -167,10 +169,12 @@ def test_expert_filter_form_widget_attributes(env):
     """Directly test that EventOrderExpertFilterForm assigns searchable select attrs to country fields."""
     with scope(organizer=env['organizer'], event=env['event']):
         form = EventOrderExpertFilterForm(event=env['event'])
-        invoice_widget_attrs = form.fields['invoice_address_country'].widget.attrs
-        attendee_widget_attrs = form.fields['attendee_address_country'].widget.attrs
+        invoice_field = form.fields['invoice_address_country']
+        attendee_field = form.fields['attendee_address_country']
 
-        for attrs in [invoice_widget_attrs, attendee_widget_attrs]:
+        for field in [invoice_field, attendee_field]:
+            assert field.choices[0] == ('', 'All countries')
+            attrs = field.widget.attrs
             assert 'data-searchable-select' in attrs
             assert attrs['data-all-label'] == 'All countries'
             assert attrs['data-search-placeholder'] == 'Search'

@@ -111,7 +111,7 @@ const initSearchableSelect = function(select) {
 
   const syncLabel = function() {
     const selected = select.options[select.selectedIndex]
-    value.textContent = selected ? selected.text : ''
+    value.textContent = selected ? (allLabel && selected.value === '' ? allLabel : selected.text) : ''
     options().forEach(function(option) {
       const isSelected = option.dataset.value === select.value
       option.classList.toggle('is-selected', isSelected)
@@ -185,7 +185,10 @@ const initSearchableSelect = function(select) {
       }
     })
     empty.hidden = !query || choiceMatches > 0
-    setActive(0)
+    const firstChoice = visibleOptions().findIndex(function(option) {
+      return !(allLabel && option.dataset.value === '')
+    })
+    setActive(query && firstChoice >= 0 ? firstChoice : 0)
   }
 
   const open = function() {

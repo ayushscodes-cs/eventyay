@@ -661,7 +661,7 @@ class EventOrderExpertFilterForm(EventOrderFilterForm):
         self.fields['invoice_address_country'] = forms.ChoiceField(
             required=False,
             label=gettext('Invoice address') + ': ' + gettext('Country'),
-            choices=[('', '')] + list(CachedCountries()),
+            choices=[('', _('All countries'))] + list(CachedCountries()),
             widget=searchable_country_select(),
         )
         self.fields['attendee_name'] = forms.CharField(required=False, label=_('Attendee name'))
@@ -687,7 +687,7 @@ class EventOrderExpertFilterForm(EventOrderFilterForm):
         self.fields['attendee_address_country'] = forms.ChoiceField(
             required=False,
             label=gettext('Attendee address') + ': ' + gettext('Country'),
-            choices=[('', '')] + list(CachedCountries()),
+            choices=[('', _('All countries'))] + list(CachedCountries()),
             widget=searchable_country_select(),
         )
         self.fields['ticket_secret'] = forms.CharField(label=_('Ticket secret'), required=False)
